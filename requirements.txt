@@ -10,7 +10,6 @@ scipy==1.5.4
 tensorboard==2.4.1
 tensorboard-plugin-wit==1.8.0
 torch==1.8.1
-torch-ema @ git+https://github.com/fadel/pytorch_ema@3950a7b5c4b88f46fd14f620277bad21898597a9
 torch-fidelity==0.2.0
 torchmetrics==0.2.0
 torchvision==0.9.1
