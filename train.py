@@ -77,17 +77,10 @@ def train(rank, world_size, opt):
     scaler = torch.cuda.amp.GradScaler()
 
     if opt.load_dir != '':
-        try:
-            generator = torch.load(os.path.join(opt.load_dir, 'generator.pth'), map_location=device)
-            discriminator = torch.load(os.path.join(opt.load_dir, 'discriminator.pth'), map_location=device)
-            ema = torch.load(os.path.join(opt.load_dir, 'ema.pth'), map_location=device)
-            ema2 = torch.load(os.path.join(opt.load_dir, 'ema2.pth'), map_location=device)
-        except FileNotFoundError:
-            print("Cannot load checkpoint from {}".format(opt.load_dir))
-            generator = getattr(generators, metadata['generator'])(SIREN, metadata['latent_dim']).to(device)
-            discriminator = getattr(discriminators, metadata['discriminator'])().to(device)
-            ema = ExponentialMovingAverage(generator.parameters(), decay=0.999)
-            ema2 = ExponentialMovingAverage(generator.parameters(), decay=0.9999)
+        generator = torch.load(os.path.join(opt.load_dir, 'generator.pth'), map_location=device)
+        discriminator = torch.load(os.path.join(opt.load_dir, 'discriminator.pth'), map_location=device)
+        ema = torch.load(os.path.join(opt.load_dir, 'ema.pth'), map_location=device)
+        ema2 = torch.load(os.path.join(opt.load_dir, 'ema2.pth'), map_location=device)
     else:
         generator = getattr(generators, metadata['generator'])(SIREN, metadata['latent_dim']).to(device)
         discriminator = getattr(discriminators, metadata['discriminator'])().to(device)
@@ -114,13 +107,10 @@ def train(rank, world_size, opt):
     optimizer_D = torch.optim.Adam(discriminator_ddp.parameters(), lr=metadata['disc_lr'], betas=metadata['betas'], weight_decay=metadata['weight_decay'])
 
     if opt.load_dir != '':
-        try:
-            optimizer_G.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_G.pth')))
-            optimizer_D.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_D.pth')))
-            if not metadata.get('disable_scaler', False):
-                scaler.load_state_dict(torch.load(os.path.join(opt.load_dir, 'scaler.pth')))
-        except FileNotFoundError:
-            print("Cannot load checkpoint from {}".format(opt.load_dir))
+        optimizer_G.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_G.pth')))
+        optimizer_D.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_D.pth')))
+        if not metadata.get('disable_scaler', False):
+            scaler.load_state_dict(torch.load(os.path.join(opt.load_dir, 'scaler.pth')))
 
     generator_losses = []
     discriminator_losses = []
@@ -188,8 +178,8 @@ def train(rank, world_size, opt):
             if discriminator.step % opt.model_save_interval == 0 and rank == 0:
                 now = datetime.now()
                 now = now.strftime("%d--%H:%M--")
-                torch.save(ema, os.path.join(opt.output_dir, now + 'ema.pth'))
-                torch.save(ema2, os.path.join(opt.output_dir, now + 'ema2.pth'))
+                torch.save(ema.state_dict(), os.path.join(opt.output_dir, now + 'ema.pth'))
+                torch.save(ema2.state_dict(), os.path.join(opt.output_dir, now + 'ema2.pth'))
                 torch.save(generator_ddp.module, os.path.join(opt.output_dir, now + 'generator.pth'))
                 torch.save(discriminator_ddp.module, os.path.join(opt.output_dir, now + 'discriminator.pth'))
                 torch.save(optimizer_G.state_dict(), os.path.join(opt.output_dir, now + 'optimizer_G.pth'))
@@ -355,8 +345,8 @@ def train(rank, world_size, opt):
                     ema.restore(generator_ddp.parameters())
 
                 if discriminator.step % opt.sample_interval == 0:
-                    torch.save(ema, os.path.join(opt.output_dir, 'ema.pth'))
-                    torch.save(ema2, os.path.join(opt.output_dir, 'ema2.pth'))
+                    torch.save(ema.state_dict(), os.path.join(opt.output_dir, 'ema.pth'))
+                    torch.save(ema2.state_dict(), os.path.join(opt.output_dir, 'ema2.pth'))
                     torch.save(generator_ddp.module, os.path.join(opt.output_dir, 'generator.pth'))
                     torch.save(discriminator_ddp.module, os.path.join(opt.output_dir, 'discriminator.pth'))
                     torch.save(optimizer_G.state_dict(), os.path.join(opt.output_dir, 'optimizer_G.pth'))

@@ -27,7 +27,8 @@ source /h/edwardl/pigan/pigan_env/bin/activate
 
 # put your command here
 # python train.py
-CUDA_VISIBLE_DEVICES=0 python3 train.py --curriculum CARLA --output_dir $PWD/checkpoint --load_dir $PWD/checkpoint --model_save_interval 50 --n_epochs 200
+CUDA_VISIBLE_DEVICES=0 python3 train.py --curriculum CARLA --output_dir $PWD/checkpoint --model_save_interval 50 --n_epochs 200
 
 # copy over checkpoint files
-cp -r /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE/ /h/edwardl/pigan/${SLURM_JOB_ID}/output/
+mkdir -p /h/edwardl/pigan/output/${SLURM_JOB_ID}/
+cp -r /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE/ /h/edwardl/pigan/output/${SLURM_JOB_ID}/
