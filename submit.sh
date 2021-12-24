@@ -18,7 +18,7 @@
 # Create Checkpoint Directory
 touch /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE
 # Local symbolic link
-ln -sfn /checkpoint/${USER}/${SLURM_JOB_ID} $PWD/checkpoint
+ln -sfn /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE $PWD/checkpoint
 
 # prepare your environment here
 # module load pytorch1.7.1-cuda11.0-python3.6
@@ -31,4 +31,4 @@ CUDA_VISIBLE_DEVICES=0 python3 train.py --curriculum CARLA --output_dir $PWD/che
 
 # copy over checkpoint files
 mkdir -p /h/edwardl/pigan/output/${SLURM_JOB_ID}/
-cp -r /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE/ /h/edwardl/pigan/output/${SLURM_JOB_ID}/
+cp -r /checkpoint/${USER}/${SLURM_JOB_ID}/ /h/edwardl/pigan/output/${SLURM_JOB_ID}/
