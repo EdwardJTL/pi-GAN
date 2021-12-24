@@ -77,10 +77,17 @@ def train(rank, world_size, opt):
     scaler = torch.cuda.amp.GradScaler()
 
     if opt.load_dir != '':
-        generator = torch.load(os.path.join(opt.load_dir, 'generator.pth'), map_location=device)
-        discriminator = torch.load(os.path.join(opt.load_dir, 'discriminator.pth'), map_location=device)
-        ema = torch.load(os.path.join(opt.load_dir, 'ema.pth'), map_location=device)
-        ema2 = torch.load(os.path.join(opt.load_dir, 'ema2.pth'), map_location=device)
+        try:
+            generator = torch.load(os.path.join(opt.load_dir, 'generator.pth'), map_location=device)
+            discriminator = torch.load(os.path.join(opt.load_dir, 'discriminator.pth'), map_location=device)
+            ema = torch.load(os.path.join(opt.load_dir, 'ema.pth'), map_location=device)
+            ema2 = torch.load(os.path.join(opt.load_dir, 'ema2.pth'), map_location=device)
+        except FileNotFoundError:
+            print("Cannot load checkpoint from {}".format(opt.load_dir))
+            generator = getattr(generators, metadata['generator'])(SIREN, metadata['latent_dim']).to(device)
+            discriminator = getattr(discriminators, metadata['discriminator'])().to(device)
+            ema = ExponentialMovingAverage(generator.parameters(), decay=0.999)
+            ema2 = ExponentialMovingAverage(generator.parameters(), decay=0.9999)
     else:
         generator = getattr(generators, metadata['generator'])(SIREN, metadata['latent_dim']).to(device)
         discriminator = getattr(discriminators, metadata['discriminator'])().to(device)
@@ -107,10 +114,13 @@ def train(rank, world_size, opt):
     optimizer_D = torch.optim.Adam(discriminator_ddp.parameters(), lr=metadata['disc_lr'], betas=metadata['betas'], weight_decay=metadata['weight_decay'])
 
     if opt.load_dir != '':
-        optimizer_G.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_G.pth')))
-        optimizer_D.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_D.pth')))
-        if not metadata.get('disable_scaler', False):
-            scaler.load_state_dict(torch.load(os.path.join(opt.load_dir, 'scaler.pth')))
+        try:
+            optimizer_G.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_G.pth')))
+            optimizer_D.load_state_dict(torch.load(os.path.join(opt.load_dir, 'optimizer_D.pth')))
+            if not metadata.get('disable_scaler', False):
+                scaler.load_state_dict(torch.load(os.path.join(opt.load_dir, 'scaler.pth')))
+        except FileNotFoundError:
+            print("Cannot load checkpoint from {}".format(opt.load_dir))
 
     generator_losses = []
     discriminator_losses = []

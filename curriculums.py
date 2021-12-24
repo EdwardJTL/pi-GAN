@@ -123,7 +123,7 @@ CARLA = {
     int(55e3): {'batch_size': 10, 'num_steps': 48, 'img_size': 128, 'batch_split': 5, 'gen_lr': 10e-6, 'disc_lr': 10e-5},
     int(200e3): {},
 
-    'dataset_path': '/home/marcorm/S-GAN/data/cats_bigger_than_128x128/*.jpg',
+    'dataset_path': '/h/edwardl/datasets/carla/images/*.png',
     'fov': 30,
     'ray_start': 0.7,
     'ray_end': 1.3,
