@@ -3,7 +3,7 @@
 
 #SBATCH --partition=rtx6000
 
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 
 #SBATCH --qos=normal
 
@@ -16,7 +16,7 @@
 #SBATCH --error=slurm-%j.err
 
 # Create Checkpoint Directory
-touch /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE
+mkdir /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE
 # Local symbolic link
 ln -sfn /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE $PWD/checkpoint
 
@@ -27,7 +27,7 @@ source /h/edwardl/pigan/pigan_env/bin/activate
 
 # put your command here
 # python train.py
-CUDA_VISIBLE_DEVICES=0 python3 train.py --curriculum CARLA --output_dir $PWD/checkpoint --model_save_interval 50 --n_epochs 200
+CUDA_VISIBLE_DEVICES=0,1 python3 train.py --curriculum CARLA --output_dir /checkpoint/${USER}/${SLURM_JOB_ID}/DELAYEDPURGE --model_save_interval 50 --n_epochs 200
 
 # copy over checkpoint files
 mkdir -p /h/edwardl/pigan/output/${SLURM_JOB_ID}/
