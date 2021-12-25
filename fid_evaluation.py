@@ -32,8 +32,16 @@ def output_real_images(dataloader, num_imgs, real_dir):
 def setup_evaluation(dataset_name, generated_dir, dataset_path, target_size=128, num_imgs=8000):
     # Only make real images if they haven't been made yet
     real_dir = os.path.join('EvalImages', dataset_name + '_real_images_' + str(target_size))
-    if not os.path.exists(real_dir):
-        os.makedirs(real_dir)
+    os.makedirs(real_dir, exist_ok=True)
+
+    # if a directory exists but the images are not right, remove them
+    existing_files = [name for name in os.listdir(real_dir) if os.path.isfile(name)]
+    if len(existing_files) != num_imgs:
+        print("Removing {} files".format(len(existing_files)))
+        for file in existing_files:
+            os.remove(file)
+
+        # then create the images
         dataloader, CHANNELS = datasets.get_dataset(dataset_name, img_size=target_size, dataset_path=dataset_path)
         print('outputting real images...')
         output_real_images(dataloader, num_imgs, real_dir)
