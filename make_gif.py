@@ -5,6 +5,8 @@ import numpy as np
 import os
 import re
 
+from natsort import natsorted, ns
+
 import matplotlib
 from PIL import Image, ImageDraw, ImageFont
 
@@ -31,7 +33,7 @@ def write_step_on_image(img, step, text_height):
 
 def make_gif_for_type(type, path, output_path):
     files = [f for f in list_img_for_type(type, path)]
-    files.sort()
+    files = natsorted(files, alg=ns.IGNORECASE)
     images = []
     for filename in files:
         image = Image.open(os.path.join(path, filename), 'r')
