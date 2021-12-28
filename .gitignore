@@ -1,4 +1,4 @@
-# Pi-GAN
+## Pi-GAN
 EvalImages/
 slurm*.err
 slurm-*.out
@@ -142,3 +142,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+## VSCode
+.vscode/
