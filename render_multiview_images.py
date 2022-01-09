@@ -1,6 +1,7 @@
 import argparse
 import math
 import glob
+from matplotlib import pyplot as plt
 import numpy as np
 import sys
 import os
@@ -23,7 +24,7 @@ def show(tensor_img):
 def generate_img(gen, z, **kwargs):
     
     with torch.no_grad():
-        img, depth_map = generator.staged_forward(z, **kwargs)
+        img, depth_map = gen.staged_forward(z, **kwargs)
         tensor_img = img.detach()
         
         img_min = img.min()
